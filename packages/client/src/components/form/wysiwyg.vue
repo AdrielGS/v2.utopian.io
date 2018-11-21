@@ -3,6 +3,7 @@ import { mapActions } from 'vuex'
 
 export default {
   name: 'u-wysiwyg',
+  props: ['value', 'onChange', 'field'],
   props: ['value', 'onChange', 'field', 'v-model'],
   mounted () {
   /*
@@ -434,6 +435,7 @@ export default {
         left: 0,
         pos: 0
       },
+      wysiwyg: '',
       errorLog: [],
       browser: 'init',
       userInputPosRendered: false,
@@ -542,7 +544,7 @@ export default {
         v-model="terms"
         maxlength="32"
         class="findUser"
-        :placeholder="$t('editor.userSearch')"
+        placeholder="Search for a user"
         autofocus
         autocorrect="off"
         :class="[ fullScreen ? 'superZ': 'normalZ' ]"
