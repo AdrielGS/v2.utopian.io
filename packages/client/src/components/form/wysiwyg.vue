@@ -8,7 +8,7 @@ import { mapActions } from 'vuex'
 
 export default {
   name: 'u-wysiwyg',
-  props: ['value', 'onChange', 'field'],
+  props: ['value', 'onChange', 'field', 'v-model'],
   mounted () {
     /*
     window.addEventListener('paste', async function (e) {
@@ -360,7 +360,7 @@ export default {
      * @author Daniel Thompson-Yvetot
      */
     markdown () {
-      this.markdownMD = this.$turndown.turndown(this.wysiwyg)
+      this.markdownMD = this.$turndown.turndown(this.value)
       this.markdownHTML = this.$marked(this.markdownMD)
       this.showMarkdown = !this.showMarkdown
     },
@@ -380,7 +380,6 @@ export default {
         left: 0,
         pos: 0
       },
-      wysiwyg: this.value || '&nbsp;',
       errorLog: [],
       browser: 'init',
       userInputPosRendered: false,
@@ -469,7 +468,6 @@ export default {
         @keyup.native="detectAt()"
         @fullscreen="fullscreen"
         @input="handleChange"
-        v-model="wysiwyg"
         :value="value"
         :field="field"
         :toolbar="toolbar"
