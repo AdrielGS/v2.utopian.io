@@ -110,6 +110,15 @@
       }
     }
   },
+  "editor": {
+    "userSearch": "Search for a user",
+    "userNotFound": "No users found",
+    "findGitIssue": "Insert a link to a Git issue",
+    "findUserName": "Insert a link to a User profile",
+    "uploadImage": "Insert an Image",
+    "showMarkdown": "Toggle Markdown View",
+    "showEditor": "Return to Editor"
+  },
   "navbar": {
     "contribute": "contribute",
     "linkSteemAccount": "Link your Steem account",

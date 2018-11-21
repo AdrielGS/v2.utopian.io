@@ -1,5 +1,4 @@
 <script>
-import QNoSsr from 'quasar-framework/src/components/no-ssr/QNoSsr'
 import { mapActions } from 'vuex'
 
 // todo: map to quasar internals
@@ -9,7 +8,6 @@ import { mapActions } from 'vuex'
 
 export default {
   name: 'u-wysiwyg',
-  components: { QNoSsr },
   props: ['value', 'onChange', 'field'],
   mounted () {
     /*
@@ -358,6 +356,16 @@ export default {
     },
     uploadFails () {
       // this.setAppError('fileUpload.error.unexpected')
+    },
+    /**
+     * Create markdown / render markdown / show markdown
+     *
+     * @author Daniel Thompson-Yvetot
+     */
+    markdown () {
+      this.markdownMD = this.$turndown.turndown(this.wysiwyg)
+      this.markdownHTML = this.$marked(this.markdownMD)
+      this.showMarkdown = !this.showMarkdown
     }
   },
   data () {
@@ -367,6 +375,7 @@ export default {
         left: 0,
         pos: 0
       },
+      wysiwyg: '',
       errorLog: [],
       browser: 'init',
       userInputPosRendered: false,
@@ -378,22 +387,44 @@ export default {
       findUser: false,
       users: {}, // results array for @mention
       fullScreen: false,
+      showMarkdown: false,
+      markdownMD: '',
+      markdownHTML: '',
       definitions: {
+        git: {
+          handler: () => this.craftGithub(), // () => { this.userInputPosRendered = true },
+          icon: 'fab fa-git',
+          tip: this.$t('editor.findGitIssue')
+        },
         getUser: {
-          handler: () => this.craftInput(), // () => { this.userInputPosRendered = true },
-          icon: 'far fa-user',
+          handler: () => this.craftInput(15), // () => { this.userInputPosRendered = true },
+          icon: 'fas fa-at',
           tip: this.$t('editor.findUsername')
         },
         upload: {
           handler: () => this.uploadFile(), // () => { this.userInputPosRendered = true },
           icon: 'far fa-image',
           tip: this.$t('editor.uploadImage')
+        },
+        markdown: {
+          handler: () => this.markdown('handler'), // () => { this.userInputPosRendered = true },
+          icon: 'fab fa-markdown',
+          tip: this.$t('editor.showMarkdown')
         }
       },
       toolbar: [
-        ['fullscreen'],
-        ['link', 'upload'], // , 'getUser' => save it for a rainy day
         [
+          'git',
+          'getUser'
+        ],
+        [
+          {
+            icon: this.$q.icon.editor.formatting,
+            fixedLabel: true,
+            fixedIcon: false,
+            list: 'no-icons',
+            options: ['p', 'h3', 'h4', 'code']
+          },
           {
             icon: this.$q.icon.editor.removeFormat,
             // onlyIcons: true,
@@ -402,19 +433,6 @@ export default {
             list: 'only-icons',
             disable: true,
             options: ['bold', 'italic', 'strike', 'underline', 'removeFormat']
-          },
-          {
-            icon: this.$q.icon.editor.fontSize,
-            fixedLabel: true,
-            fixedIcon: false,
-            list: 'no-icons',
-            options: ['size-1', 'size-2', 'size-3', 'size-4', 'size-5', 'size-6']
-          },
-          {
-            icon: this.$q.icon.editor.formatting,
-            fixedLabel: true,
-            fixedIcon: false,
-            options: ['p', 'code']
           }
         ],
         [
@@ -430,33 +448,35 @@ export default {
             list: 'only-icons',
             options: ['unordered', 'ordered', 'quote', 'hr']
           }
-        ]
+        ],
+        ['link', 'upload', 'fullscreen', 'markdown']
       ]
     }
   }
 }
 </script>
-<template>
-  <div>
-    <form id="CE" autocorrect="off" autocapitalize="off" autocomplete="off">
-      <q-editor
+<template lang="pug">
+  div
+    form(id="CE" autocorrect="off" autocapitalize="off" autocomplete="off")
+      q-editor(
+        v-if="!showMarkdown"
         ref="editor"
         @keyup.native="detectAt()"
         @fullscreen="fullscreen"
         @input="handleChange"
+        v-model="wysiwyg"
         :value="value"
         :field="field"
         :toolbar="toolbar"
         :definitions="definitions"
         :content-style="{ fontFamily: 'Noto Sans' }"
-      >
-      </q-editor>
-      <q-input
+      )
+      q-input(
         v-if="userInputPosRendered"
         v-model="terms"
         maxlength="32"
         class="findUser"
-        placeholder="Search for a user"
+        :placeholder="$t('editor.userSearch')"
         autofocus
         :class="[ fullScreen ? 'superZ': 'normalZ' ]"
         :style="userInputPosRendered"
@@ -464,69 +484,85 @@ export default {
         color="amber"
         @blur="clearFindUser()"
         @keyup.escape="clearFindUser('clear')"
-        :after="[
-        {
-          icon: 'close',
-          handler () {
-            clearFindUser('clear')
-          }
-        }
-      ]"
-      >
-        <q-autocomplete
+        :after="[{icon: 'close', handler () {clearFindUser('clear')}}]"
+      )
+        q-autocomplete(
           @search="search"
           :debounce="200"
           :min-characters="3"
           :max-results="10"
           @selected="pasteUserToPos"
           dense
-        ></q-autocomplete>
-      </q-input>
-    </form>
-
-    <div class="fullScreen" v-if="fullScreen">
-      <img src="~assets/img/logo-icon.svg" />
-    </div>
-    <q-no-ssr>
-      <q-scroll-observable @scroll="userHasScrolled"></q-scroll-observable>
-      <!--<q-window-resize-observable v-if="!$q.platform.is.android" @resize="detectAt"></q-window-resize-observable>-->
-    </q-no-ssr>
-  </div>
+        )
+    .q-editor(v-if="showMarkdown" name="markdown")
+      .q-editor-toolbar.row.full-width
+        h4(style="margin: auto")
+          strong {{ $t('editor.markdownPreview') }}
+        q-btn(
+          v-if="showMarkdown"
+          size="md"
+          flat
+          @click.native="showMarkdown = false"
+          icon="fab fa-html5"
+          style="margin: 0 0 0 auto"
+        )
+          span &nbsp;&nbsp;{{ $t('editor.showEditor') }}
+      .row.bg-white
+        small.row.q-pa-sm.full-width
+          span(v-html="markdownMD")
+        small.row.q-pa-sm.full-width(style="border-top:2px dotted #eee")
+          span(v-html="markdownHTML")
+    // .fullScreen(v-if="fullScreen")
+      img(src="~assets/img/logo-icon.svg")
+    q-no-ssr
+      q-scroll-observable(@scroll="userHasScrolled")
+      // q-window-resize-observable(v-if="!$q.platform.is.android" @resize="detectAt")
 </template>
-<style>
-  .findUser {
-    height: 26px;
-    font-family: 'Noto Sans';
-    outline-color: transparent!important;
-    padding-left: 2px!important;
-    border-color: transparent!important;
-  }
-  .superZ {
-    z-index: 6001;
-  }
-  .normalZ {
-    z-index: 1000;
-  }
-  .fullScreen {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    z-index: 10000;
-    opacity: 0.3;
-  }
-  .q-if-addon-left {
-    margin: 5px 0 0 -2px;
-  }
-  a.mention-link, a.mention-link:visited,a.mention-link:hover {
-    color: #E9DC51!important;
-    text-decoration-line: none!important;
-  }
-  .q-editor-content *::selection {
-    background-color:rgba(255, 255, 100, 0.7)!important;
-    color:#032764!important;
-  }
-  .q-popover {
-    transform: translate3d(0,0,0);
-  }
+<style lang="stylus">
+  @import "~variables"
+  .findUser
+    height 26px
+    font-family 'Noto Sans'
+    outline-color transparent!important
+    padding-left 2px!important
+    border-color transparent!important
+  .superZ
+    z-index 6001
+  .normalZ
+    z-index 1000
+  .fullScreen
+    position absolute
+    top 5px
+    right 10px
+    z-index 10000
+    opacity 0.3
+  .q-if-addon-left
+    margin 5px 0 0 -2px
+  a.mention-link, a.mention-link:visited, a.mention-link:hover
+    color #E9DC51!important
+    text-decoration-line: none!important
+  .q-editor-content::selection, .q-editor-content *::selection
+    background-color rgba(255, 255, 100, 0.7)
+    color #032764
+  .q-popover
+    transform translate3d(0,0,0)
+  pre, .pre .q-input-target
+    white-space pre-wrap
+    display block
+    unicode-bidi embed
+    font-family monospace!important
+    color: black!important
+  h2
+    font-size 50px
+    line-height 52px
+    margin 0
 
+  .q-editor-toolbar
+    background-color: #ffffff!important
+    .q-editor-toolbar-padding
+      .q-btn-group:last-child
+        margin 0 0 0 auto
+        color #888!important
+      .q-btn-group:last-child::before
+        opacity 0
 </style>

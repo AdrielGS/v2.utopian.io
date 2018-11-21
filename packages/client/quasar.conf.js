@@ -25,7 +25,8 @@ module.exports = function (ctx) {
     plugins: [
       'vuelidate',
       'i18n',
-      'axios'
+      'axios',
+      { path: 'markdown', server: false }
     ],
     // build configuration.
     build: {
