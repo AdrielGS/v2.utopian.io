@@ -313,7 +313,9 @@ export default {
     image upload
 
      */
-
+    getFile () {
+      this.$refs.file.click()
+    },
     /**
      * Pastes selected @mention user into the contenteditable
      *
@@ -327,35 +329,30 @@ export default {
       const data = new FormData()
       data.append('file', file)
       return new Promise((resolve, reject) => {
-        if (this.project.medias.filter(m => m.type === 'image').length >= 5) {
-          reject(file)
-        } else {
-          this.$axios.post(
-            'https://img.utopian.io/upload/',
-            data,
-            {
-              onUploadProgress: (progressEvent) => {
-                updateProgress(progressEvent.loaded / progressEvent.total)
-              }
+        this.$axios.post(
+          'https://img.utopian.io/upload/',
+          data,
+          {
+            onUploadProgress: (progressEvent) => {
+              updateProgress(progressEvent.loaded / progressEvent.total)
             }
-          )
-            .then((res) => {
-              if (!this.project.medias.some(m => m.type === 'image' && m.src === res.url)) {
-                this.project.medias.push({
-                  type: 'image',
-                  src: res.url
-                })
-                this.updateFormPercentage('medias')
-              }
-              resolve(file)
-            }).catch(() => {
-              reject(file)
+          }
+        ).then((res) => {
+          if (!this.project.medias.some(m => m.type === 'image' && m.src === res.url)) {
+            this.project.medias.push({
+              type: 'image',
+              src: res.url
             })
-        }
+            this.updateFormPercentage('medias')
+          }
+          resolve(file)
+        }).catch(() => {
+          reject(file)
+        })
       })
     },
     uploadFails () {
-      // this.setAppError('fileUpload.error.unexpected')
+      this.setAppError('fileUpload.error.unexpected')
     },
     /**
      * Create markdown / render markdown / show markdown
@@ -366,6 +363,14 @@ export default {
       this.markdownMD = this.$turndown.turndown(this.wysiwyg)
       this.markdownHTML = this.$marked(this.markdownMD)
       this.showMarkdown = !this.showMarkdown
+    },
+    /**
+     * Craft Github selection stub
+     *
+     * @author Daniel Thompson-Yvetot
+     */
+    craftGithub () {
+      this.$q.notify(this.$t('editor.githubComingSoon'))
     }
   },
   data () {
@@ -375,7 +380,7 @@ export default {
         left: 0,
         pos: 0
       },
-      wysiwyg: '',
+      wysiwyg: this.value || '&nbsp;',
       errorLog: [],
       browser: 'init',
       userInputPosRendered: false,
@@ -494,7 +499,7 @@ export default {
           @selected="pasteUserToPos"
           dense
         )
-    .q-editor(v-if="showMarkdown" name="markdown")
+    .q-editor(v-if="showMarkdown")
       .q-editor-toolbar.row.full-width
         h4(style="margin: auto")
           strong {{ $t('editor.markdownPreview') }}
@@ -514,6 +519,7 @@ export default {
           span(v-html="markdownHTML")
     // .fullScreen(v-if="fullScreen")
       img(src="~assets/img/logo-icon.svg")
+    input(type="file" ref="file" style="display: none")
     q-no-ssr
       q-scroll-observable(@scroll="userHasScrolled")
       // q-window-resize-observable(v-if="!$q.platform.is.android" @resize="detectAt")
