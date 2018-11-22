@@ -1,33 +1,11 @@
 <script>
 import { mapActions } from 'vuex'
-import 'vue-croppa/dist/vue-croppa.css'
-
-// todo: map to quasar internals
-// import { Caret } from 'quasar-framework/src/components/editor/editor-caret'
-// this.caret = new Caret(this.$refs.editor, this)
-// this.caret.restore()
 
 export default {
   name: 'u-wysiwyg',
   props: ['value', 'onChange', 'field', 'v-model'],
   mounted () {
-    /*
-    window.addEventListener('paste', async function (e) {
-      e.preventDefault()
-      e.stopPropagation()
-      let file = e.clipboardData.items[0].getAsFile()
-      let objectUrl = URL.createObjectURL(file)
-      // console.log(objectUrl)
-      // do something with url here
-      document.execCommand('insertImage', false, objectUrl)
-    })
-
-    document.querySelector('div[contenteditable="true"]').addEventListener("paste", function(e) {
-        e.preventDefault();
-        var text = e.clipboardData.getData("text/plain");
-        document.execCommand("insertHTML", false, text);
-    });
-
+  /*
     // https://stackoverflow.com/a/28213320
 
     // only paste in "cleaned text".
@@ -55,9 +33,7 @@ export default {
             }
             _onPaste_StripFormatting_IEPaste = false;
         }
-
     }
-
     */
   },
   methods: {
@@ -73,7 +49,7 @@ export default {
     },
 
     /*
-          helpers
+                                  helpers
     */
 
     /**
@@ -149,7 +125,7 @@ export default {
     },
 
     /*
-          @mentions
+                                  @mentions
     */
 
     /**
@@ -197,7 +173,7 @@ export default {
      * Get the caret position in all cases
      *
      * @returns {object} left, top distance in pixels
-     *
+     * @author jiyinyiyong
      */
     getCaretTopPoint () {
       // https://gist.github.com/jiyinyiyong/f79c2bdf3fa646042173
@@ -241,11 +217,9 @@ export default {
      *  create the input position (for DOM rendering)
      *
      *  @param {number} offset - offset to the right in pixels
-     *
+     *  @author Daniel Thompson-Yvetot
      */
     craftInput (offset) {
-      // this.$refs.editor.focus()
-
       this.userInputPos.pos = this.getRangePolyfill()
       let child = this.getCaretTopPoint()
       const parent = document.getElementById('CE').getBoundingClientRect()
@@ -264,7 +238,7 @@ export default {
     /**
      *  Hit the api to discover users where the partial matches usernames
      *
-     *  @param {string} terms - 2-32 character string to search the DB
+     *  @param {string} term - 2-32 character string to search the DB
      *  @param {function} done - waterfall callback
      *  @callback done - the results mapped to the autocomplete dropdown
      *  @throws $axios error
@@ -311,63 +285,128 @@ export default {
 
     /*
 
-    image upload
+                                image upload
 
      */
-    getFile () {
-      this.$refs.file.click()
-    },
+
     /**
-     * Pastes selected @mention user into the contenteditable
+     * Submit file to IPFS, place returned URL into editor
      *
-     * @param {object} file
-     * @param {object} updateProgress
-     * @returns {boolean}
-     * @status works cross browser
+     * @param {object} file - possible multiple file descriptors
+     * @returns {promise}
+     * @author unknown
      * @author Daniel Thompson-Yvetot
      */
     uploadFile (file) {
-      this.picPopup = true
       const data = new FormData()
+      if (!file) return
+      this.$q.loading.show()
       data.append('file', file)
       return new Promise((resolve, reject) => {
         this.$axios.post(
           'https://img.utopian.io/upload/',
           data
         ).then((res) => {
-          alert(res)
+          this.$q.loading.hide()
+          // check if we have focus, if not get it.
+          this.$refs.editor.focus()
+          document.execCommand('insertImage', false, res.url)
           resolve(file)
         }).catch(() => {
           reject(file)
         })
       })
     },
+
+    /**
+     * Send a message that the upload didn't work
+     *
+     * @author unknown
+     */
     uploadFails () {
       this.setAppError('fileUpload.error.unexpected')
     },
-    pasteCapture: e => {
+
+    /**
+     * Capture the buttonUpload event
+     *
+     * @param {object} e - array of files
+     * @author Daniel Thompson-Yvetot
+     */
+    pasteCapture (e) {
       // http://joelb.me/blog/2011/code-snippet-accessing-clipboard-images-with-javascript/
-      console.log(e)
+      // console.log(e)
       try {
         if (e.clipboardData) {
           for (const item of e.clipboardData.items) {
-            if (item.kind === 'file' && /^image\//.test(item.type)) {
+            if (item.kind === 'file' && /^image\//.test(item.type)) { //
+              e.preventDefault()
               const blob = item.getAsFile()
-              // const URLObj = window.URL || window.webkitURL
-              // const source = URLObj.createObjectURL(blob)
               this.uploadFile(blob)
+            } else {
+              // not something we support :(
+              this.$q.notify(this.$t('editor.fileTypeNotSupported'))
             }
           }
-        } else {
-          // http://joelb.me/blog/2011/code-snippet-accessing-clipboard-images-with-javascript/
-          // contenteditable element that catches all pasted data
-          // this.setState({ noClipboardData: true })
-          setTimeout(this.pasteCapture(e), 1);
         }
-      } catch (error) {
-        console.error('Error analyzing clipboard event', error)
+      } catch (err) {
+        console.log(err)
+        this.$q.notify(this.$t('editor.pasteError'))
       }
     },
+
+    /**
+     * Capture the drop event
+     *
+     * @param {object} e - array of files
+     * @author Daniel Thompson-Yvetot
+     */
+    dropCapture (e) {
+      if (this.dropStop === true) {
+        this.dropStop = false
+        return
+      }
+      try {
+        if (e.dataTransfer) {
+          for (const item of e.dataTransfer.items) {
+            if (item.kind === 'file') {
+              e.preventDefault()
+              if (/^image\//.test(item.type)) {
+                const blob = item.getAsFile()
+                this.uploadFile(blob)
+              } else {
+                // not something we support :(
+                this.$q.notify(this.$t('editor.fileTypeNotSupported'))
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.log(err)
+        this.$q.notify(this.$t('editor.pasteError'))
+      }
+    },
+
+    /**
+     * Capture the buttonUpload event
+     *
+     * @param {object} e - possible several files
+     * @author Daniel Thompson-Yvetot
+     */
+    buttonCapture (e) {
+      if (e.target.files) {
+        for (const item of e.target.files) {
+          if (/^image\//.test(item.type)) {
+            this.uploadFile(item)
+            this.$refs.file.val = null
+          } else {
+            // not something we support :(
+            this.$q.notify(this.$t('editor.fileTypeNotSupported'))
+          }
+        }
+      }
+    },
+
     /**
      * Create markdown / render markdown / show markdown
      *
@@ -378,13 +417,14 @@ export default {
       this.markdownHTML = this.$marked(this.markdownMD)
       this.showMarkdown = !this.showMarkdown
     },
+
     /**
      * Craft Github selection stub
      *
      * @author Daniel Thompson-Yvetot
      */
     craftGithub () {
-      this.$q.notify(this.$t('editor.githubComingSoon'))
+      this.$q.notify(this.$t('editor.gitComingSoon'))
     }
   },
   data () {
@@ -410,24 +450,25 @@ export default {
       markdownHTML: '',
       pic: {},
       picPopup: false,
+      dropTop: false,
       definitions: {
         git: {
-          handler: () => this.craftGithub(), // () => { this.userInputPosRendered = true },
+          handler: () => this.craftGithub(),
           icon: 'fab fa-git',
           tip: this.$t('editor.findGitIssue')
         },
         getUser: {
-          handler: () => this.craftInput(15), // () => { this.userInputPosRendered = true },
+          handler: () => this.craftInput(15),
           icon: 'fas fa-at',
           tip: this.$t('editor.findUsername')
         },
         upload: {
-          handler: () => this.uploadFile(), // () => { this.userInputPosRendered = true },
+          handler: () => this.$refs.file.click(),
           icon: 'far fa-image',
           tip: this.$t('editor.uploadImage')
         },
         markdown: {
-          handler: () => this.markdown('handler'), // () => { this.userInputPosRendered = true },
+          handler: () => this.markdown('handler'),
           icon: 'fab fa-markdown',
           tip: this.$t('editor.showMarkdown')
         }
@@ -447,11 +488,9 @@ export default {
           },
           {
             icon: this.$q.icon.editor.removeFormat,
-            // onlyIcons: true,
             fixedIcon: false,
             fixedLabel: true,
             list: 'only-icons',
-            disable: true,
             options: ['bold', 'italic', 'strike', 'underline', 'removeFormat']
           }
         ],
@@ -478,25 +517,26 @@ export default {
 <template lang="pug">
   div
     form(
-    id="CE"
-    autocorrect="off"
-    autocapitalize="off"
-    autocomplete="off"
+      id="CE"
+      autocorrect="off"
+      autocapitalize="off"
+      autocomplete="off"
     )
       q-editor(
         v-if="!showMarkdown"
         ref="editor"
         @keyup.native="detectAt()"
         @fullscreen="fullscreen"
-        @input="handleChange"
         @paste.native="evt => pasteCapture(evt)"
-        @drop.native="evt => pasteCapture(evt)"
+        @drop.native="evt => dropCapture(evt)"
+        @drag.native="dropStop = true"
+        @input="handleChange"
         :value="value"
         :field="field"
         :toolbar="toolbar"
         :definitions="definitions"
         :content-style="{ fontFamily: 'Noto Sans' }"
-      )
+        )
       q-input(
         v-if="userInputPosRendered"
         v-model="terms"
@@ -504,6 +544,7 @@ export default {
         class="findUser"
         :placeholder="$t('editor.userSearch')"
         autofocus
+        autocorrect="off"
         :class="[ fullScreen ? 'superZ': 'normalZ' ]"
         :style="userInputPosRendered"
         ref="userSearch"
@@ -520,26 +561,6 @@ export default {
           @selected="pasteUserToPos"
           dense
         )
-      q-modal(v-model="picPopup" :content-css="{minWidth: '50vw', minHeight: '50vh', maxWidth: '80vw', maxHeight: '80vh'}")
-        q-modal-layout
-          q-toolbar(slot="header")
-            h4
-              strong {{ $t('editor.imageEditor') }}
-            q-btn.float-right(
-              flat
-              round
-              dense
-              v-close-overlay
-              icon="close"
-              style="margin:0 0 0 auto"
-            )
-          croppa(
-            v-model="pic"
-            :placeholder="$t('editor.dragAndDrop')"
-            :prevent-white-space="true"
-            :zoom-speed="10"
-            accept="image/png, image/jpg"
-          )
 
     // FYI, the following is merely using the quasar class styling to stay visually identical
     .q-editor.markdown(v-if="showMarkdown")
@@ -560,9 +581,15 @@ export default {
           span(v-html="markdownMD")
         small.row.q-pa-sm.full-width(style="border-top:2px dotted #eee")
           span(v-html="markdownHTML")
-    // .fullScreen(v-if="fullScreen")
-      img(src="~assets/img/logo-icon.svg")
-    input(type="file" ref="file" style="display: none")
+
+    // this is the invisible element to use for the button click for adding files
+    input(
+      type="file"
+      ref="file"
+      multiple="true"
+      style="display: none"
+      @change="evt => buttonCapture(evt)"
+    )
     q-no-ssr
       q-scroll-observable(@scroll="userHasScrolled")
       // q-window-resize-observable(v-if="!$q.platform.is.android" @resize="detectAt")
@@ -594,8 +621,9 @@ export default {
     background-color rgba(255, 255, 100, 0.7)
     color #032764
   .q-editor-content, .markdown
+    object-fit contain!important
     img
-      width 100%!important
+      max-width 100%!important
   .q-popover
     transform translate3d(0,0,0)
   pre, .pre .q-input-target
@@ -608,7 +636,6 @@ export default {
     font-size 50px
     line-height 52px
     margin 0
-
   .q-editor-toolbar
     background-color: #ffffff!important
     .q-editor-toolbar-padding

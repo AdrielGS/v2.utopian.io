@@ -119,7 +119,10 @@
     "showMarkdown": "Toggle Markdown View",
     "showEditor": "Return to Editor",
     "imageEditor": "Edit your Image",
-    "dragAndDrop": "Drag and drop your Image here"
+    "dragAndDrop": "Drag and drop target",
+    "fileTypeNotSupported": "We only support uploading images.",
+    "gitComingSoon": "Git Repo Search Coming Soon!",
+    "pasteError": "Git Repo Search Coming Soon!"
   },
   "navbar": {
     "contribute": "contribute",
