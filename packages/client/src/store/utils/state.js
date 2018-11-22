@@ -1,4 +1,6 @@
 export default () => ({
   appError: null,
-  localStorageData: []
+  appSuccess: null,
+  localStorageData: [],
+  languages: []
 })

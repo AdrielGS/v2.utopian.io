@@ -26,6 +26,14 @@
       "update": "Update my article"
     }
   },
+  "components": {
+    "form": {
+      "language": {
+        "label": "Language",
+        "placeholder": "Select a language"
+      }
+    }
+  },
   "fileUpload": {
     "error": {
       "unexpected": "An error occurred while uploading your file."
@@ -128,7 +136,7 @@
     "contribute": "contribute",
     "linkSteemAccount": "Link your Steem account",
     "logOut": "Log out",
-    "settings": "Settings",
+    "profile": "Profile",
     "signIn": "sign in"
   },
   "notFound": {
@@ -136,6 +144,55 @@
     "title": "Sorry, nothing here"
   },
   "users": {
+    "profile": {
+      "availableForHire": {
+        "label": "Available for hire?"
+      },
+      "avatar": {
+        "label": "Avatar URL",
+        "helper": "Set an URL or upload an image",
+        "placeholder": "Upload a file or set an url",
+        "preview": "Preview"
+      },
+      "cover": {
+        "label": "Cover URL",
+        "helper": "Set an URL or upload an image",
+        "placeholder": "Upload a file or set an url",
+        "preview": "Preview"
+      },
+      "email": {
+        "label": "Email",
+        "placeholder": "example@domain.com"
+      },
+      "job": {
+        "label": "Title",
+        "placeholder": "What is you current position?"
+      },
+      "location": {
+        "label": "Location",
+        "placeholder": "Paris, France"
+      },
+      "name": {
+        "label": "Name",
+        "placeholder": "Your real name"
+      },
+      "resume": {
+        "label": "Resume",
+        "placeholder": "A little bit about yourself"
+      },
+      "section": {
+        "account": "Account information",
+        "images": "Images",
+        "job": "Job",
+        "skills": "Skills"
+      },
+      "subtitle": "Make a great first impression with all the information about yourself and your career.",
+      "title": "Let's update your profile",
+      "update": "Update",
+      "username": {
+        "label": "Utopian username"
+      }
+    },
     "search": {
       "notFound": "No users found"
     }
@@ -146,6 +203,7 @@
         "500": "An unexpected occurred, please contact the support at support@utopian.io",
         "documentDoesNotExist": "The document does not exist.",
         "documentUpdateUnauthorized": "You are not authorized to update this document.",
+        "languageNotSupported": "This language is not currently supported",
         "unauthorized": "You are not authorized to do this action.",
         "updateFail": "An error occurred while updating the data."
       },
@@ -169,12 +227,16 @@
       }
     },
     "messages": {
-      "deleteSuccess": "The information was successfully deleted."
+      "deleteSuccess": "The information was successfully deleted.",
+      "updateSuccess": "The information was successfully updated."
     }
   },
   "auth": {
     "login": {
       "github": "Login with GitHub"
+    },
+    "signup": {
+      "loading": "Creating new user..."
     }
   },
   "errors": {

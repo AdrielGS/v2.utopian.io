@@ -26,9 +26,9 @@ export default {
       'startGithubLogin',
       'startSteemConnectLogin'
     ]),
-    logoutAndRedirect () {
+    async logoutAndRedirect () {
+      await this.logout()
       this.$router.push({ path: `/${this.$route.params.locale}` })
-      this.logout()
     },
     redirectToLogin () {
       window.location = `${process.env.AUTH_DOMAIN}/${this.$route.params.locale}/login/?redirectUrl=${window.location.href}`
@@ -74,9 +74,9 @@ export default {
                   q-item-side
                     q-icon.q-item-icon.ut-steem
                   q-item-main(:label="`@${steemUser}`")
-                q-item(:to="{ name: 'settings' }")
-                  q-item-side(icon="mdi-settings")
-                  q-item-main(:label="$t('navbar.settings')")
+                q-item(:to="`/${$route.params.locale}/profile`")
+                  q-item-side(icon="mdi-account")
+                  q-item-main(:label="$t('navbar.profile')")
                 q-item(@click.native="logoutAndRedirect")
                   q-item-side(icon="mdi-logout")
                   q-item-main(:label="$t('navbar.logOut')")
