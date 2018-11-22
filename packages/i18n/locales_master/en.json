@@ -124,6 +124,7 @@
     "findGitIssue": "Insert a link to a Git issue",
     "findUserName": "Insert a link to a User profile",
     "uploadImage": "Insert an Image",
+    "markdownPreview": "Markdown Preview",
     "showMarkdown": "Toggle Markdown View",
     "showEditor": "Return to Editor",
     "imageEditor": "Edit your Image",

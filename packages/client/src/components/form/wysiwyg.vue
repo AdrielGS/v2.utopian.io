@@ -3,7 +3,6 @@ import { mapActions } from 'vuex'
 
 export default {
   name: 'u-wysiwyg',
-  props: ['value', 'onChange', 'field'],
   props: ['value', 'onChange', 'field', 'v-model'],
   mounted () {
   /*
