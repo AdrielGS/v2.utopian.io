@@ -1,5 +1,6 @@
 <script>
 import { mapActions } from 'vuex'
+import 'vue-croppa/dist/vue-croppa.css'
 
 // todo: map to quasar internals
 // import { Caret } from 'quasar-framework/src/components/editor/editor-caret'
@@ -325,26 +326,16 @@ export default {
      * @status works cross browser
      * @author Daniel Thompson-Yvetot
      */
-    uploadFile (file, updateProgress) {
+    uploadFile (file) {
+      this.picPopup = true
       const data = new FormData()
       data.append('file', file)
       return new Promise((resolve, reject) => {
         this.$axios.post(
           'https://img.utopian.io/upload/',
-          data,
-          {
-            onUploadProgress: (progressEvent) => {
-              updateProgress(progressEvent.loaded / progressEvent.total)
-            }
-          }
+          data
         ).then((res) => {
-          if (!this.project.medias.some(m => m.type === 'image' && m.src === res.url)) {
-            this.project.medias.push({
-              type: 'image',
-              src: res.url
-            })
-            this.updateFormPercentage('medias')
-          }
+          alert(res)
           resolve(file)
         }).catch(() => {
           reject(file)
@@ -353,6 +344,29 @@ export default {
     },
     uploadFails () {
       this.setAppError('fileUpload.error.unexpected')
+    },
+    pasteCapture: e => {
+      // http://joelb.me/blog/2011/code-snippet-accessing-clipboard-images-with-javascript/
+      console.log(e)
+      try {
+        if (e.clipboardData) {
+          for (const item of e.clipboardData.items) {
+            if (item.kind === 'file' && /^image\//.test(item.type)) {
+              const blob = item.getAsFile()
+              // const URLObj = window.URL || window.webkitURL
+              // const source = URLObj.createObjectURL(blob)
+              this.uploadFile(blob)
+            }
+          }
+        } else {
+          // http://joelb.me/blog/2011/code-snippet-accessing-clipboard-images-with-javascript/
+          // contenteditable element that catches all pasted data
+          // this.setState({ noClipboardData: true })
+          setTimeout(this.pasteCapture(e), 1);
+        }
+      } catch (error) {
+        console.error('Error analyzing clipboard event', error)
+      }
     },
     /**
      * Create markdown / render markdown / show markdown
@@ -394,6 +408,8 @@ export default {
       showMarkdown: false,
       markdownMD: '',
       markdownHTML: '',
+      pic: {},
+      picPopup: false,
       definitions: {
         git: {
           handler: () => this.craftGithub(), // () => { this.userInputPosRendered = true },
@@ -461,13 +477,20 @@ export default {
 </script>
 <template lang="pug">
   div
-    form(id="CE" autocorrect="off" autocapitalize="off" autocomplete="off")
+    form(
+    id="CE"
+    autocorrect="off"
+    autocapitalize="off"
+    autocomplete="off"
+    )
       q-editor(
         v-if="!showMarkdown"
         ref="editor"
         @keyup.native="detectAt()"
         @fullscreen="fullscreen"
         @input="handleChange"
+        @paste.native="evt => pasteCapture(evt)"
+        @drop.native="evt => pasteCapture(evt)"
         :value="value"
         :field="field"
         :toolbar="toolbar"
@@ -497,7 +520,29 @@ export default {
           @selected="pasteUserToPos"
           dense
         )
-    .q-editor(v-if="showMarkdown")
+      q-modal(v-model="picPopup" :content-css="{minWidth: '50vw', minHeight: '50vh', maxWidth: '80vw', maxHeight: '80vh'}")
+        q-modal-layout
+          q-toolbar(slot="header")
+            h4
+              strong {{ $t('editor.imageEditor') }}
+            q-btn.float-right(
+              flat
+              round
+              dense
+              v-close-overlay
+              icon="close"
+              style="margin:0 0 0 auto"
+            )
+          croppa(
+            v-model="pic"
+            :placeholder="$t('editor.dragAndDrop')"
+            :prevent-white-space="true"
+            :zoom-speed="10"
+            accept="image/png, image/jpg"
+          )
+
+    // FYI, the following is merely using the quasar class styling to stay visually identical
+    .q-editor.markdown(v-if="showMarkdown")
       .q-editor-toolbar.row.full-width
         h4(style="margin: auto")
           strong {{ $t('editor.markdownPreview') }}
@@ -548,6 +593,9 @@ export default {
   .q-editor-content::selection, .q-editor-content *::selection
     background-color rgba(255, 255, 100, 0.7)
     color #032764
+  .q-editor-content, .markdown
+    img
+      width 100%!important
   .q-popover
     transform translate3d(0,0,0)
   pre, .pre .q-input-target

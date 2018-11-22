@@ -1862,6 +1862,11 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000844, caniuse-lite@^1.0.30000884:
   version "1.0.30000888"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000888.tgz#22edb50d91dd70612b5898e3b36f460600c6492f"
 
+canvas-exif-orientation@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/canvas-exif-orientation/-/canvas-exif-orientation-0.4.0.tgz#b487f3701998a9e879eb104010b2a58115368b6b"
+  integrity sha1-tIfzcBmYqeh56xBAELKlgRU2i2s=
+
 caseless@~0.12.0:
   version "0.12.0"
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
@@ -5646,9 +5651,10 @@ oauth-sign@~0.9.0:
   resolved "https://registry.yarnpkg.com/oauth-sign/-/oauth-sign-0.9.0.tgz#47a7b016baa68b5fa0ecf3dee08a85c679ac6455"
   integrity sha512-fexhUFFPTGV8ybAtSIGbV6gOkSv8UtRbDBnAyLQw4QPKkgNlsH2ByPGtMUqdWkos6YCRmAqViwgZrJc/mRDzZQ==
 
-object-assign@^4.0.1, object-assign@^4.1.0:
+object-assign@^4.0.1, object-assign@^4.1.0, object-assign@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
+  integrity sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
 
 object-copy@^0.1.0:
   version "0.1.0"
@@ -8176,6 +8182,14 @@ void-elements@^2.0.1:
 vue-class-component@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-6.2.0.tgz#7adb1daa9a868c75f30f97f33f4f1b94aee62089"
+
+vue-croppa@^1.3.8:
+  version "1.3.8"
+  resolved "https://registry.yarnpkg.com/vue-croppa/-/vue-croppa-1.3.8.tgz#1aac95bf5d94020de7bc1ea7ca61e3aadfff1811"
+  integrity sha512-WwYgEKscTCD7BzhnbfRJfzWIU6RcMq2JRimB3aI5gGzpADmpKuqmDh9+oVfiZaEnpmRthgXZxcAvbxU6CeIU9w==
+  dependencies:
+    canvas-exif-orientation "^0.4.0"
+    object-assign "^4.1.1"
 
 vue-eslint-parser@^2.0.3:
   version "2.0.3"

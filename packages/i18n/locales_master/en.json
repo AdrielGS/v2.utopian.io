@@ -117,7 +117,9 @@
     "findUserName": "Insert a link to a User profile",
     "uploadImage": "Insert an Image",
     "showMarkdown": "Toggle Markdown View",
-    "showEditor": "Return to Editor"
+    "showEditor": "Return to Editor",
+    "imageEditor": "Edit your Image",
+    "dragAndDrop": "Drag and drop your Image here"
   },
   "navbar": {
     "contribute": "contribute",

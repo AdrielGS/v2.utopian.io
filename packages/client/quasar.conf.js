@@ -26,7 +26,8 @@ module.exports = function (ctx) {
       'vuelidate',
       'i18n',
       'axios',
-      { path: 'markdown', server: false }
+      { path: 'markdown', server: false },
+      { path: 'croppa', server: false }
     ],
     // build configuration.
     build: {
@@ -131,6 +132,8 @@ module.exports = function (ctx) {
         'QLayoutHeader',
         'QList',
         'QListHeader',
+        'QModal',
+        'QModalLayout',
         'QNoSsr',
         'QOptionGroup',
         'QPage',
