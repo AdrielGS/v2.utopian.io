@@ -3,7 +3,7 @@ import { mapActions } from 'vuex'
 
 export default {
   name: 'u-wysiwyg',
-  props: ['value', 'onChange', 'field', 'v-model'],
+  props: ['value', 'field'],
   mounted () {
   /*
     // https://stackoverflow.com/a/28213320
@@ -43,9 +43,6 @@ export default {
      */
     handleChange (newVal) {
       this.$emit('input', newVal)
-      if (this.onChange && this.field) {
-        this.onChange(this.field)
-      }
     },
 
     /*
@@ -214,6 +211,18 @@ export default {
     },
 
     /**
+     *  focus on the input area (needed if area is not focussed / empty)
+     *
+     *  @param {number} offset - offset to the right in pixels
+     *  @author Daniel Thompson-Yvetot
+     */
+    buttonPrep (offset) {
+      this.$refs.editor.focus()
+      document.execCommand('insertHTML', false, '&nbsp;')
+      this.craftInput(offset)
+    },
+
+    /**
      *  create the input position (for DOM rendering)
      *
      *  @param {number} offset - offset to the right in pixels
@@ -339,13 +348,15 @@ export default {
       try {
         if (e.clipboardData) {
           for (const item of e.clipboardData.items) {
-            if (item.kind === 'file' && /^image\//.test(item.type)) { //
+            if (item.kind === 'file') {
               e.preventDefault()
-              const blob = item.getAsFile()
-              this.uploadFile(blob)
-            } else {
-              // not something we support :(
-              this.$q.notify(this.$t('editor.fileTypeNotSupported'))
+              if (/^image\//.test(item.type)) {
+                const blob = item.getAsFile()
+                this.uploadFile(blob)
+              } else {
+                // not something we support :(
+                this.$q.notify(this.$t('editor.fileTypeNotSupported'))
+              }
             }
           }
         }
@@ -449,6 +460,7 @@ export default {
       showMarkdown: false,
       markdownMD: '',
       markdownHTML: '',
+      markdownCode: true,
       pic: {},
       picPopup: false,
       dropTop: false,
@@ -459,7 +471,7 @@ export default {
           tip: this.$t('editor.findGitIssue')
         },
         getUser: {
-          handler: () => this.craftInput(15),
+          handler: () => this.buttonPrep(15),
           icon: 'fas fa-at',
           tip: this.$t('editor.findUsername')
         },
@@ -532,12 +544,12 @@ export default {
         @drop.native="evt => dropCapture(evt)"
         @drag.native="dropStop = true"
         @input="handleChange"
-        :value="value"
+        :value="value || '&nbsp;'"
         :field="field"
         :toolbar="toolbar"
         :definitions="definitions"
         :content-style="{ fontFamily: 'Noto Sans' }"
-        )
+      )
       q-input(
         v-if="userInputPosRendered"
         v-model="terms"
@@ -566,8 +578,10 @@ export default {
     // FYI, the following is merely using the quasar class styling to stay visually identical
     .q-editor.markdown(v-if="showMarkdown")
       .q-editor-toolbar.row.full-width
-        h4(style="margin: auto")
+        h4(style="margin: auto 0 6px 10px")
           strong {{ $t('editor.markdownPreview') }}
+        q-btn(v-if="markdownCode" flat icon="fas fa-code" @click="markdownCode = false" style="margin: 0 0 0 auto")
+        q-btn(v-else, flat icon="fab fa-markdown" @click="markdownCode = true" style="margin: 0 0 0 auto")
         q-btn(
           v-if="showMarkdown"
           size="md"
@@ -578,9 +592,9 @@ export default {
         )
           span &nbsp;&nbsp;{{ $t('editor.showEditor') }}
       .row.bg-white
-        small.row.q-pa-sm.full-width
+        small.row.q-pa-sm.full-width(v-if="markdownCode")
           span(v-html="markdownMD")
-        small.row.q-pa-sm.full-width(style="border-top:2px dotted #eee")
+        small.row.q-pa-sm.full-width(v-else, style="border-top:2px dotted #eee")
           span(v-html="markdownHTML")
 
     // this is the invisible element to use for the button click for adding files
@@ -588,6 +602,7 @@ export default {
       type="file"
       ref="file"
       multiple="true"
+      accept="image/*"
       style="display: none"
       @change="evt => buttonCapture(evt)"
     )
