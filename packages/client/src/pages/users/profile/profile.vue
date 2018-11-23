@@ -80,6 +80,8 @@ export default {
   methods: {
     ...mapActions('users', [
       'fetchUserProfile',
+      'createWorkExperience',
+      'updateWorkExperience',
       'updateProfileMainInformation',
       'updateProfileJob',
       'updateProfileImages'
@@ -91,9 +93,6 @@ export default {
     },
     uploadCover (file) {
       this.uploadImage(file[0], 'cover', 'coverUploader')
-    },
-    async updateWorkExperience () {
-      console.log('update education')
     },
     uploadImage (file, prop, ref) {
       const data = new FormData()
@@ -114,6 +113,19 @@ export default {
     },
     uploadFails () {
       this.setAppError('fileUpload.error.unexpected')
+    },
+    async newWorkExperience () {
+      this.$v.workExperience.$touch()
+      if (!this.$v.workExperience.$invalid) {
+        const result = await this.createWorkExperience(this.workExperience)
+        if (result) {
+          this.setAppSuccess(`api.messages.${result}`)
+        }
+      }
+    },
+    async editWorkExperience () {
+      this.$v.workExperiences.$touch()
+      console.log('TODO: update work experience')
     },
     async updateMainInformation () {
       this.$v.mainInformation.$touch()
