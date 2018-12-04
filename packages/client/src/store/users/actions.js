@@ -75,3 +75,11 @@ export const updateProfileImages = async (context, data) =>
     url: '/v1/user/profile/images',
     data
   })
+
+export const updateProfileSkills = async (context, data) =>
+  API.call({
+    context,
+    method: 'post',
+    url: '/v1/user/profile/skills',
+    data
+  })

@@ -218,6 +218,10 @@
         "job": "Job",
         "skills": "Skills"
       },
+      "skills": {
+        "label": "Skills",
+        "placeholder": "Add your skills"
+      },
       "subtitle": "Make a great first impression with all the information about yourself and your career.",
       "title": "Let's update your profile",
       "update": "Update",

@@ -1,6 +1,6 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import { email, required, url } from 'vuelidate/lib/validators'
+import { email, required, url, maxLength } from 'vuelidate/lib/validators'
 
 export default {
   name: 'u-page-users-edit',
@@ -22,7 +22,8 @@ export default {
       images: {
         avatarUrl: '',
         cover: ''
-      }
+      },
+      skills: []
     }
   },
   validations: {
@@ -33,7 +34,9 @@ export default {
       avatarUrl: { required, url },
       cover: { url }
     },
-    skills: {}
+    skills: {
+      maxLength: maxLength(30)
+    }
   },
   async mounted () {
     const result = await this.fetchUserProfile()
@@ -64,7 +67,8 @@ export default {
       'fetchUserProfile',
       'updateProfileMainInformation',
       'updateProfileJob',
-      'updateProfileImages'
+      'updateProfileImages',
+      'updateProfileSkills'
     ]),
     ...mapActions('auth', ['updateAvatarUrl']),
     ...mapActions('utils', ['setAppSuccess']),
@@ -126,8 +130,14 @@ export default {
     async updateSkills () {
       this.$v.skills.$touch()
       if (!this.$v.skills.$invalid) {
-
+        const result = await this.updateProfileSkills({ skills: this.skills })
+        if (result) {
+          this.setAppSuccess(`api.messages.${result}`)
+        }
       }
+    },
+    skillsAutocomplete (term, done) {
+      
     }
   },
   computed: {
@@ -209,6 +219,8 @@ div.profile-form
       h4.q-mb-sm {{$t('users.profile.section.skills')}}
       q-card(square, color="white")
         q-card-main
+          q-chips-input(v-model="skills", :placeholder="$t('users.profile.skills.placeholder')")
+            q-autocomplete(@search="skillsAutocomplete", :min-characters="3", :max-results="10")
         q-card-separator
         q-card-actions(align="end")
           q-btn(color="primary", :label="$t('users.profile.update')", @click="updateSkills")

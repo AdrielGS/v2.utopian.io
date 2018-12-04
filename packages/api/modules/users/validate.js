@@ -71,6 +71,12 @@ const updateProfileImages = {
   }
 }
 
+const updateProfileSkills = {
+  payload: {
+    skills: Joi.array().max(30).unique().items(Joi.string().trim().alphanum()).required()
+  }
+}
+
 module.exports = {
   saveUser,
   getUsersByPartial,
@@ -78,6 +84,7 @@ module.exports = {
   updateProfileMainInformation,
   updateProfileJob,
   updateProfileImages,
+  updateProfileSkills,
   isUsernameAvailable,
   hasClaimedBlockchainAccount
 }
