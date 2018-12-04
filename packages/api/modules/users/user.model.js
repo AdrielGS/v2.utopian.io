@@ -48,7 +48,7 @@ const users = new Schema({
   location: { type: String },
   name: { type: String },
   resume: { type: String },
-  skills: { type: Array, required: true },
+  skills: { type: Array },
   createdAt: { type: Date, default: Date.now() },
   updatedAt: { type: Date },
   deletedAt: { type: Date }

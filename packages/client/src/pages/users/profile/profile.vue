@@ -60,6 +60,7 @@ export default {
       }
       this.avatarPreview = result.avatarUrl
       this.coverPreview = result.cover
+      this.skills = result.skills
     }
   },
   methods: {
@@ -136,8 +137,8 @@ export default {
         }
       }
     },
-    skillsAutocomplete (term, done) {
-      
+    async skillsAutocomplete (term, done) {
+
     }
   },
   computed: {
