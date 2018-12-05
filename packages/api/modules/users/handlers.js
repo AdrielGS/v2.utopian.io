@@ -162,7 +162,7 @@ const searchUsersSkills = async (req, h) => {
   const skills = await User.aggregate([
       { '$unwind': '$skills' },
       { '$match': { skills:{ '$regex': req.params.partial, '$options': 'i'}}},
-      { '$group': { _id: '$skills'}},
+      { '$group': { _id: '$skills', occurrences: {'$sum': 1}}},
       { '$limit': 10}]);
 
   return h.response(skills)

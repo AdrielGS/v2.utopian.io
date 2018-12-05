@@ -142,7 +142,8 @@ export default {
       let skills = await this.searchUsersSkills(term);
       done(skills.map(skill => ({
         label: skill._id,
-        value: skill._id
+        value: skill._id,
+        stamp: skill.occurrences
       })));
     }
   },
@@ -225,8 +226,9 @@ div.profile-form
       h4.q-mb-sm {{$t('users.profile.section.skills')}}
       q-card(square, color="white")
         q-card-main
-          q-chips-input(v-model="skills", :placeholder="$t('users.profile.skills.placeholder')")
-            q-autocomplete(@search="skillsAutocomplete", :min-characters="3", :max-results="10")
+          q-field(:count="30")
+            q-chips-input(v-model="skills", :placeholder="$t('users.profile.skills.placeholder')")
+              q-autocomplete(@search="skillsAutocomplete", :min-characters="3", :max-results="10")
         q-card-separator
         q-card-actions(align="end")
           q-btn(color="primary", :label="$t('users.profile.update')", @click="updateSkills")
