@@ -83,3 +83,10 @@ export const updateProfileSkills = async (context, data) =>
     url: '/v1/user/profile/skills',
     data
   })
+
+export const searchUsersSkills = async (context, term) =>
+  API.call({
+    context,
+    method: 'get',
+    url: `/v1/user/profile/searchSkills/${term}`
+  })

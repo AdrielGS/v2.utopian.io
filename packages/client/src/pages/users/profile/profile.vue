@@ -69,7 +69,8 @@ export default {
       'updateProfileMainInformation',
       'updateProfileJob',
       'updateProfileImages',
-      'updateProfileSkills'
+      'updateProfileSkills',
+      'searchUsersSkills'
     ]),
     ...mapActions('auth', ['updateAvatarUrl']),
     ...mapActions('utils', ['setAppSuccess']),
@@ -138,7 +139,11 @@ export default {
       }
     },
     async skillsAutocomplete (term, done) {
-
+      let skills = await this.searchUsersSkills(term);
+      done(skills.map(skill => ({
+        label: skill._id,
+        value: skill._id
+      })));
     }
   },
   computed: {

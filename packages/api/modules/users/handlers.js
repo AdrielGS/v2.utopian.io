@@ -158,12 +158,24 @@ const updateProfile = async (req, h) => {
   throw Boom.badData('users.doesNotExist')
 }
 
+const searchUsersSkills = async (req, h) => {
+  const skills = await User.aggregate([
+      { '$unwind': '$skills' },
+      { '$match': { skills:{ '$regex': req.params.partial, '$options': 'i'}}},
+      { '$group': { _id: '$skills'}},
+      { '$limit': 10}]);
+
+  return h.response(skills)
+
+}
+
 module.exports = {
   createUser,
   getUsersByPartial,
   getUserByUsername,
   getUserProfile,
   updateProfile,
+  searchUsersSkills,
   isUsernameAvailable,
   hasClaimedBlockchainAccount
 }

@@ -97,6 +97,15 @@ routes.push([
       tags: ['users'],
       validate: Validate.updateProfileSkills
     }
+  },
+  {
+    method: 'GET',
+    path: '/v1/user/profile/searchSkills/{partial}',
+    handler: (req, h) => Handlers.searchUsersSkills(req, h),
+    options: {
+      auth: { access: { scope: 'user' } },
+      tags: ['users']
+    }
   }
 ])
 
