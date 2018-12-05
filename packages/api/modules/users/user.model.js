@@ -80,7 +80,7 @@ users.methods.getEditableFields = function () {
     location: this.location,
     name: this.name,
     resume: this.resume,
-    skills: this.skills,
+    skills: this.skills
   }
 }
 

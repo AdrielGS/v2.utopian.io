@@ -160,13 +160,14 @@ const updateProfile = async (req, h) => {
 
 const searchUsersSkills = async (req, h) => {
   const skills = await User.aggregate([
-      { '$unwind': '$skills' },
-      { '$match': { skills:{ '$regex': req.params.partial, '$options': 'i'}}},
-      { '$group': { _id: '$skills', occurrences: {'$sum': 1}}},
-      { '$limit': 10}]);
+    { '$unwind': '$skills' },
+    { '$match': { skills: { '$regex': req.params.partial, '$options': 'i' } } },
+    { '$group': { _id: '$skills', occurrences: { '$sum': 1 } } },
+    { '$limit': 10 },
+    { '$addFields': { name: '$_id' } }
+  ])
 
   return h.response(skills)
-
 }
 
 module.exports = {

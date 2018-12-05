@@ -141,9 +141,9 @@ export default {
     async skillsAutocomplete (term, done) {
       let skills = await this.searchUsersSkills(term);
       done(skills.map(skill => ({
-        label: skill._id,
         value: skill._id,
-        stamp: skill.occurrences
+        label: skill.name,
+        stamp: `${skill.occurrences}`
       })));
     }
   },
