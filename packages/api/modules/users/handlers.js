@@ -158,6 +158,18 @@ const updateProfile = async (req, h) => {
   throw Boom.badData('users.doesNotExist')
 }
 
+/**
+ * Update the user's profile
+ * This method is used by 3 different endpoints that differentiate the page's forms
+ *
+ * @param {object} req - request
+ * @param {object} h - response
+ * @payload {object} req.payload - contains the term to be searched
+ *
+ * @returns contains the matched skills
+ * @author Adriel Santos
+ */
+
 const searchUsersSkills = async (req, h) => {
   const skills = await User.aggregate([
     { '$unwind': '$skills' },
