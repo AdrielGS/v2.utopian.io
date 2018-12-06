@@ -139,12 +139,12 @@ export default {
       }
     },
     async skillsAutocomplete (term, done) {
-      let skills = await this.searchUsersSkills(term);
+      let skills = await this.searchUsersSkills(term)
       done(skills.map(skill => ({
         value: skill._id,
         label: skill.name,
         stamp: `${skill.occurrences}`
-      })));
+      })))
     },
     duplicatedSkills (value) {
       this.setAppError('users.profile.errors.duplicatedSkill')
