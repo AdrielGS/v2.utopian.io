@@ -103,7 +103,6 @@ routes.push([
     path: '/v1/user/profile/searchSkills',
     handler: (req, h) => Handlers.searchUsersSkills(req, h),
     options: {
-      auth: { access: { scope: 'user' } },
       tags: ['users'],
       validate: Validate.searchUsersSkills
     }
