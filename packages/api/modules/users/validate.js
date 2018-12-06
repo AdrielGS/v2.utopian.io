@@ -73,7 +73,14 @@ const updateProfileImages = {
 
 const updateProfileSkills = {
   payload: {
-    skills: Joi.array().max(30).unique().items(Joi.string().trim().alphanum()).required()
+    skills: Joi.array().max(30).unique().items(Joi.string().trim().min(2).max(100)).required()
+  }
+}
+
+const searchUsersSkills = {
+  payload: {
+    partial: Joi.string().trim().required().min(2).max(100),
+    skills: Joi.array().max(30).unique().items(Joi.string().trim().min(2).max(100)).required()
   }
 }
 
@@ -85,6 +92,7 @@ module.exports = {
   updateProfileJob,
   updateProfileImages,
   updateProfileSkills,
+  searchUsersSkills,
   isUsernameAvailable,
   hasClaimedBlockchainAccount
 }

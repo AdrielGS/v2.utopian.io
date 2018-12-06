@@ -139,15 +139,20 @@ export default {
       }
     },
     async skillsAutocomplete (term, done) {
-      let skills = await this.searchUsersSkills(term)
-      done(skills.map(skill => ({
-        value: skill._id,
-        label: skill.name,
-        stamp: `${skill.occurrences}`
-      })))
+      const data = {
+        partial: term,
+        skills: this.skills
+      }
+      let skills = await this.searchUsersSkills(data)
+      if (skills !== null) {
+        done(skills.map(skill => ({
+          value: skill._id,
+          label: `${skill.name} (${skill.occurrences})`
+        })))
+      }
     },
     duplicatedSkills (value) {
-      this.setAppError('users.profile.errors.duplicatedSkill')
+      this.setAppError('users.profile.skills.errors.duplicatedSkill')
     }
   },
   computed: {
@@ -230,7 +235,7 @@ div.profile-form
       q-card(square, color="white")
         q-card-main
           q-field(:count="30")
-            q-chips-input(v-model="skills", @duplicate="duplicatedSkills", :placeholder="$t('users.profile.skills.placeholder')")
+            q-chips-input(v-model="skills", @duplicate="duplicatedSkills", :placeholder="skills.length == 0 ? $t('users.profile.skills.placeholder') : ''")
               q-autocomplete(@search="skillsAutocomplete", :min-characters="3", :max-results="10")
         q-card-separator
         q-card-actions(align="end")

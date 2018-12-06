@@ -220,16 +220,16 @@
       },
       "skills": {
         "label": "Skills",
-        "placeholder": "Add your skills"
+        "placeholder": "Add your skills",
+        "errors": {
+          "duplicatedSkill": "This skill is already in the list"
+        }
       },
       "subtitle": "Make a great first impression with all the information about yourself and your career.",
       "title": "Let's update your profile",
       "update": "Update",
       "username": {
         "label": "Utopian username"
-      },
-      "errors": {
-        "duplicatedSkill": "This skill is already in the list"
       }
     },
     "search": {

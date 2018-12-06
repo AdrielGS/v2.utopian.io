@@ -41,13 +41,17 @@ const updateSkillsEndpoint = {
   method: 'POST',
   url: '/v1/user/profile/skills',
   payload: {
-    skills: ['Coding', 'Painting', 'Code']
+    skills: ['Coding', 'Painting']
   }
 }
 
 const searchUsersSkillsEndpoint = {
-  method: 'GET',
-  url: '/v1/user/profile/searchSkills/cod'
+  method: 'POST',
+  url: '/v1/user/profile/searchSkills',
+  payload: {
+    partial: 'cod',
+    skills: ['Coding', 'Painting']
+  }
 }
 
 describe('update the profile main information', () => {
