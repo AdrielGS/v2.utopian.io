@@ -73,7 +73,7 @@ export default {
       'searchUsersSkills'
     ]),
     ...mapActions('auth', ['updateAvatarUrl']),
-    ...mapActions('utils', ['setAppSuccess']),
+    ...mapActions('utils', ['setAppSuccess', 'setAppError']),
     uploadAvatar (file) {
       this.uploadImage(file[0], 'avatarUrl', 'avatarUploader')
     },
@@ -145,6 +145,9 @@ export default {
         label: skill.name,
         stamp: `${skill.occurrences}`
       })));
+    },
+    duplicatedSkills (value) {
+      this.setAppError('users.profile.errors.duplicatedSkill')
     }
   },
   computed: {
@@ -227,7 +230,7 @@ div.profile-form
       q-card(square, color="white")
         q-card-main
           q-field(:count="30")
-            q-chips-input(v-model="skills", :placeholder="$t('users.profile.skills.placeholder')")
+            q-chips-input(v-model="skills", @duplicate="duplicatedSkills", :placeholder="$t('users.profile.skills.placeholder')")
               q-autocomplete(@search="skillsAutocomplete", :min-characters="3", :max-results="10")
         q-card-separator
         q-card-actions(align="end")

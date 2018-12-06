@@ -227,6 +227,9 @@
       "update": "Update",
       "username": {
         "label": "Utopian username"
+      },
+      "errors": {
+        "duplicatedSkill": "This skill is already in the list"
       }
     },
     "search": {
