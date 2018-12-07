@@ -242,9 +242,9 @@ div.profile-form
         q-card-main
           q-field(:count="30")
             q-chips-input(
-              v-model="skills",
-              @duplicate="duplicatedSkills",
-              @input="chipsInputChange",
+              v-model="skills"
+              @duplicate="duplicatedSkills"
+              @input="chipsInputChange"
               :placeholder="skills.length === 0 ? $t('users.profile.skills.placeholder') : ''"
             )
               q-autocomplete(@search="skillsAutocomplete", :min-characters="2", :max-results="10")
