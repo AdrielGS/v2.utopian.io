@@ -153,6 +153,12 @@ export default {
     },
     duplicatedSkills (value) {
       this.setAppError('users.profile.skills.errors.duplicatedSkill')
+    },
+    chipsInputChange (newValues) {
+      if (newValues[newValues.length - 1].length < 2) {
+        this.skills.pop()
+        this.setAppError('users.profile.skills.errors.minSkillLength')
+      }
     }
   },
   computed: {
@@ -235,8 +241,13 @@ div.profile-form
       q-card(square, color="white")
         q-card-main
           q-field(:count="30")
-            q-chips-input(v-model="skills", @duplicate="duplicatedSkills", :placeholder="skills.length == 0 ? $t('users.profile.skills.placeholder') : ''")
-              q-autocomplete(@search="skillsAutocomplete", :min-characters="3", :max-results="10")
+            q-chips-input(
+              v-model="skills",
+              @duplicate="duplicatedSkills",
+              @input="chipsInputChange",
+              :placeholder="skills.length === 0 ? $t('users.profile.skills.placeholder') : ''"
+            )
+              q-autocomplete(@search="skillsAutocomplete", :min-characters="2", :max-results="10")
         q-card-separator
         q-card-actions(align="end")
           q-btn(color="primary", :label="$t('users.profile.update')", @click="updateSkills")
